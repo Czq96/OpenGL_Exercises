@@ -72,33 +72,6 @@ VertexData vertices[] = {
 
 const int nbrVertices = 8;
 
-VertexData vertices2[] = {
-    {QVector3D(0.0f, 0.0f, 2.0f), QVector3D(1.0f, 1.0f,1.0f)},
-    {QVector3D(1.0f, 0.0f, 2.0f), QVector3D(1.0f, 0.0f,0.0f)},
-    {QVector3D(0.0f, 1.0f, 2.0f), QVector3D(1.0f, 0.0f,0.0f)},
-    {QVector3D(1.0f, 1.0f, 2.0f), QVector3D(1.0f, 1.0f,1.0f)},
-    {QVector3D(0.0f, 0.0f, 3.0f), QVector3D(1.0f, 0.0f,0.0f)},
-    {QVector3D(1.0f, 0.0f, 3.0f), QVector3D(1.0f, 0.0f,0.0f)},
-    {QVector3D(0.0f, 1.0f, 3.0f), QVector3D(1.0f, 0.0f,0.0f)},
-    {QVector3D(1.0f, 1.0f, 3.0f), QVector3D(1.0f, 1.0f,1.0f)},
-};
-const int nbrVertices2 = 8;
-
-GLushort indices2[] = {
-    0,1,2,
-    1,2,3,
-    4,5,6,
-    5,6,7,
-    0,4,5,
-    0,4,6,
-    2,6,0,
-    2,6,3,
-    3,7,6,
-    3,7,1,
-    1,5,7,
-    1,5,0
-};
-const int nbrIndices2 = 36;
 
 
 GLushort indices[] = {
@@ -128,12 +101,9 @@ GeometryEngine::GeometryEngine()
     arrayBuf.create();
     indexBuf.create();
 
-    arrayBufCylindre.create();
-    indexBufCylindre.create();
-
     // Initializes cube geometry and transfers it to VBOs
-    //initGeometry();
-    initRedCubeGeometry();
+    initGeometry();
+    //initRedCubeGeometry();
 }
 
 GeometryEngine::~GeometryEngine()
@@ -141,13 +111,39 @@ GeometryEngine::~GeometryEngine()
     arrayBuf.destroy();
     indexBuf.destroy();
 
-    arrayBufCylindre.destroy();
-    indexBufCylindre.destroy();
 }
 //! [0]
 
 void GeometryEngine::initRedCubeGeometry()
 {
+
+    VertexData vertices2[] = {
+        {QVector3D(0.0f, 0.0f, 2.0f), QVector3D(1.0f, 1.0f,1.0f)},
+        {QVector3D(1.0f, 0.0f, 2.0f), QVector3D(1.0f, 0.0f,0.0f)},
+        {QVector3D(0.0f, 1.0f, 2.0f), QVector3D(1.0f, 0.0f,0.0f)},
+        {QVector3D(1.0f, 1.0f, 2.0f), QVector3D(1.0f, 1.0f,1.0f)},
+        {QVector3D(0.0f, 0.0f, 3.0f), QVector3D(1.0f, 0.0f,0.0f)},
+        {QVector3D(1.0f, 0.0f, 3.0f), QVector3D(1.0f, 0.0f,0.0f)},
+        {QVector3D(0.0f, 1.0f, 3.0f), QVector3D(1.0f, 0.0f,0.0f)},
+        {QVector3D(1.0f, 1.0f, 3.0f), QVector3D(1.0f, 1.0f,1.0f)},
+    };
+    const int nbrVertices2 = 8;
+
+    GLushort indices2[] = {
+        0,1,2,
+        1,2,3,
+        4,5,6,
+        5,6,7,
+        0,4,5,
+        0,4,6,
+        2,6,0,
+        2,6,3,
+        3,7,6,
+        3,7,1,
+        1,5,7,
+        1,5,0
+    };
+    const int nbrIndices2 = 36;
 ////! [1]
     // Transfer vertex data to VBO 0
     arrayBuf.bind();
@@ -180,105 +176,44 @@ void GeometryEngine::initGeometry()
 //! drawCylindreGeometry
 void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 projection,QQuaternion rotation)
 {
-    // Tell OpenGL which VBOs to use
-    arrayBuf.bind();
-    indexBuf.bind();
-
-    // Offset for position
-    quintptr offset = 0;
-
-    // x+方向是身高 高方向  y是-左 +右方向  z是+前 -后方向
-    QMatrix4x4 matrixTorse;//变换的顺序从下至上
-    matrixTorse.translate(0.0,0.0,-5.0);
-    matrixTorse.rotate(rotation);  //鼠标事件的旋转
-    matrixTorse.translate(-0.5/2,-(0.3/2.0),-0.2/2); // 这里移动的是物体坐标系
-    matrixTorse.scale(0.5f,0.3f,0.2f); //改变大小 xyz三方向变动   scale 写在traslate前面有变化  关于 matrix.  的顺序
-
-    // Tell OpenGL programmable pipeline how to locate vertex position data
-    int vertexLocation = program->attributeLocation("position");
-    program->enableAttributeArray(vertexLocation);
-    program->setAttributeBuffer(vertexLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
-
-    // Offset for texture coordinate
-    offset += sizeof(QVector3D);
-
-    // Tell OpenGL programmable pipeline how to locate vertex texture coordinate data
-    int colorLocation = program->attributeLocation("color");
-    program->enableAttributeArray(colorLocation);
-    program->setAttributeBuffer(colorLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
-
-    /*
-    Model matrix (model to world)   物体自己的坐标系
-    View matrix (world to view) 视角坐标系？？
-    Projection matrix (view to projection space)   投影坐标
-    You would project a coordinate C onto the screen using the formula  C' = P * V * M * C
-    */
-    //program->setUniformValue("mvp", projection * matrixCentre);
-    // Draw cube geometry using indices from VBO 1
-    //glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
-    // czq  atribute GL_LINES can be changed to GL_TRIANGLES
-
-    program->setUniformValue("mvp", projection * matrixTorse);
-    glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
-    // czq  atribute GL_LINES can be changed to GL_TRIANGLES
-
-
-    //glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
-    // czq  atribute GL_LINES can be changed to GL_TRIANGLES
-
-}
-
-
-
-void GeometryEngine::drawCylindreGeometry(QOpenGLShaderProgram *program, QMatrix4x4 projection,QQuaternion rotation)
-{
-    initRedCubeGeometry();
-    arrayBuf.bind();
-    indexBuf.bind();
-
-
-    // Offset for position
-    quintptr offset = 0;
-
-    // x+方向是身高 高方向  y是-左 +右方向  z是+前 -后方向
-    QMatrix4x4 matrixTorse;//变换的顺序从下至上
-    matrixTorse.translate(0.0,0.0,-5.0);
-    matrixTorse.rotate(rotation);  //鼠标事件的旋转
-    matrixTorse.translate(-0.5/2,-(0.3/2.0),-0.2/2); // 这里移动的是物体坐标系
-    matrixTorse.scale(0.5f,0.3f,0.2f); //改变大小 xyz三方向变动   scale 写在traslate前面有变化  关于 matrix.  的顺序
-
-    // Tell OpenGL programmable pipeline how to locate vertex position data
-    int vertexLocation = program->attributeLocation("position");
-    program->enableAttributeArray(vertexLocation);
-    program->setAttributeBuffer(vertexLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
-
-    // Offset for texture coordinate
-    offset += sizeof(QVector3D);
-
-    // Tell OpenGL programmable pipeline how to locate vertex texture coordinate data
-    int colorLocation = program->attributeLocation("color");
-    program->enableAttributeArray(colorLocation);
-    program->setAttributeBuffer(colorLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
-
-    /*
-    Model matrix (model to world)   物体自己的坐标系
-    View matrix (world to view) 视角坐标系
-    Projection matrix (view to projection space)   投影坐标
-    You would project a coordinate C onto the screen using the formula  C' = P * V * M * C
-    对物体进行  旋转  移动之后 改变的是 物体自己的坐标系 MC
-     这样物体的坐标系 就不等于世界坐标系了  每次的操作都是对物体坐标系的操作
-    */
-
-    program->setUniformValue("mvp", projection * matrixTorse);
-    glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
-    // czq  atribute GL_LINES can be changed to GL_TRIANGLES
-
     initGeometry();
     arrayBuf.bind();
     indexBuf.bind();
 
+
+    // Offset for position
+    quintptr offset = 0;
+
+    // x+方向是身高 高方向  y是-左 +右方向  z是+前 -后方向
+    QMatrix4x4 matrixTorse;//变换的顺序从下至上
+    matrixTorse.translate(0.0,0.0,-5.0);
+    matrixTorse.rotate(rotation);  //鼠标事件的旋转
+    matrixTorse.translate(-0.5/2,-(0.3/2.0),-0.2/2); // 这里移动的是物体坐标系
+    matrixTorse.scale(0.5f,0.3f,0.2f); //改变大小 xyz三方向变动   scale 写在traslate前面有变化  关于 matrix.  的顺序
+
+    // Tell OpenGL programmable pipeline how to locate vertex position data
+    int vertexLocation = program->attributeLocation("position");
+    program->enableAttributeArray(vertexLocation);
+    program->setAttributeBuffer(vertexLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
+
+    // Offset for texture coordinate
+    offset += sizeof(QVector3D);
+
+    // Tell OpenGL programmable pipeline how to locate vertex texture coordinate data
+    int colorLocation = program->attributeLocation("color");
+    program->enableAttributeArray(colorLocation);
+    program->setAttributeBuffer(colorLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
+
     program->setUniformValue("mvp", projection * matrixTorse);
     glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
     // czq  atribute GL_LINES can be changed to GL_TRIANGLES
 
+    initRedCubeGeometry();
+    arrayBuf.bind();
+    indexBuf.bind();
+
+    program->setUniformValue("mvp", projection * matrixTorse);
+    glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
+    // czq  atribute GL_LINES can be changed to GL_TRIANGLES
 }
+
