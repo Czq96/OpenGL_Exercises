@@ -51,6 +51,8 @@
 #include "geometryengine.h"
 #include "math.h"
 
+#include <QTextStream>
+
 #include <QVector2D>
 #include <QVector3D>
 
@@ -120,31 +122,34 @@ GeometryEngine::~GeometryEngine()
 void GeometryEngine::initRedCubeGeometry()
 {
     float x = PI;
-    VertexData vertices2[] = {
-        {QVector3D(0.0f, 0.0f, 2.0f), QVector3D(1.0f, 1.0f,1.0f)},
-        {QVector3D(x, 0.0f, 2.0f), QVector3D(1.0f, 0.0f,0.0f)},
-        {QVector3D(0.0f, 1.0f, 2.0f), QVector3D(1.0f, 0.0f,0.0f)},
-        {QVector3D(1.0f, 1.0f, 2.0f), QVector3D(1.0f, 1.0f,1.0f)},
-        {QVector3D(0.0f, 0.0f, 3.0f), QVector3D(1.0f, 0.0f,0.0f)},
-        {QVector3D(1.0f, 0.0f, 3.0f), QVector3D(1.0f, 0.0f,0.0f)},
-        {QVector3D(0.0f, 1.0f, 3.0f), QVector3D(1.0f, 0.0f,0.0f)},
-        {QVector3D(1.0f, 1.0f, 3.0f), QVector3D(1.0f, 1.0f,1.0f)},
-    };
-    const int nbrVertices2 = 8;
+    int circlePointNumber = 4;
+    float theta = 2*PI/circlePointNumber;
+    //使用for循环构造出一个柱子的所有点  半径为2 高为1
+    VertexData *vertices2 =new VertexData[2*circlePointNumber];
+    for(int i=0;i<circlePointNumber;i++)
+    {
+        float x=float(2*cos(theta*i));
+        float y=float(2*sin(theta*i));
+//        QTextStream out(stdout);
+//        out << "x:"<<x<<" y: "<<y<<" i"<<i<<"\n";
+        *(vertices2+i) = VertexData({QVector3D(x, y, 0.0f), QVector3D(1.0f, 0.0f,0.0f)});
+        *(vertices2+i+circlePointNumber) = VertexData({QVector3D(x, y, 1.0f), QVector3D(0.0f, 1.0f,0.0f)});
+    }
+    const int nbrVertices2 = circlePointNumber*2;
 
     GLushort indices2[] = {
         0,1,2,
-        1,2,3,
+        0,2,3,
         4,5,6,
-        5,6,7,
+        4,6,7,
         0,4,5,
-        0,4,6,
-        2,6,0,
-        2,6,3,
-        3,7,6,
-        3,7,1,
-        1,5,7,
-        1,5,0
+        0,4,3,
+        1,5,6,
+        5,1,0,
+        2,6,7,
+        2,6,1,
+        3,7,4,
+        3,7,2
     };
     const int nbrIndices2 = 36;
 ////! [1]
@@ -158,15 +163,18 @@ void GeometryEngine::initRedCubeGeometry()
 //! [1]
 }
 
+int x;
+
 void GeometryEngine::initGeometry()
 {
 ////! [1]
+    QTextStream out(stdout);
+    out << "\n init function called + 1 \n" << x;
+    x+=1;
     // Transfer vertex data to VBO 0
     arrayBuf.bind();
     arrayBuf.allocate(vertices, nbrVertices * sizeof(VertexData));
     // arrayBuf.allocate(vertices2, nbrVertices2 * sizeof(VertexData)); 写两个会覆盖掉前一个
-
-
     // Transfer index data to VBO 1
     indexBuf.bind();
     indexBuf.allocate(indices, nbrIndices * sizeof(GLushort));
@@ -179,10 +187,10 @@ void GeometryEngine::initGeometry()
 //! drawCylindreGeometry
 void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 projection,QQuaternion rotation)
 {
+    //initRedCubeGeometry();
     initGeometry();
     arrayBuf.bind();
     indexBuf.bind();
-
 
     // Offset for position
     quintptr offset = 0;
@@ -211,11 +219,20 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 proj
     glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
     // czq  atribute GL_LINES can be changed to GL_TRIANGLES
 
+//    arrayBuf.release();
+//    indexBuf.release();
+
     initRedCubeGeometry();
     arrayBuf.bind();
     indexBuf.bind();
 
-    program->setUniformValue("mvp", projection * matrixTorse);
+    QMatrix4x4 matrixClindre;//变换的顺序从下至上
+    matrixClindre.translate(1.0,-1.0,-5.0);
+    matrixClindre.rotate(rotation);  //鼠标事件的旋转
+    matrixClindre.translate(-0.5/2,-(0.3/2.0),-0.2/2); // 这里移动的是物体坐标系
+    matrixClindre.scale(0.2f,0.2f,0.2f); //改变大小 xyz三方向变动   scale 写在traslate前面有变化  关于 matrix.  的顺序
+
+    program->setUniformValue("mvp", projection * matrixClindre);
     glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
     // czq  atribute GL_LINES can be changed to GL_TRIANGLES
 }
