@@ -95,8 +95,7 @@ GLushort indices[] = {
 const int nbrIndices = 36;
 
 //! [0]
-GeometryEngine::GeometryEngine()
-    : indexBuf(QOpenGLBuffer::IndexBuffer)
+GeometryEngine::GeometryEngine(): indexBuf(QOpenGLBuffer::IndexBuffer)
 {
     initializeOpenGLFunctions();
 
@@ -119,6 +118,35 @@ GeometryEngine::~GeometryEngine()
 
 void GeometryEngine::initCylindrGeometry()
 {
+    VertexData vertices2[] = {
+        {QVector3D(0.0f, 0.0f, 0.0f), QVector3D(1.0f, 0.0f,0.0f)},
+        {QVector3D(1.0f, 0.0f, 0.0f), QVector3D(1.0f, 0.0f,0.0f)},
+        {QVector3D(0.0f, 1.0f, 0.0f), QVector3D(1.0f, 0.0f,0.0f)},
+        {QVector3D(1.0f, 1.0f, 0.0f), QVector3D(1.0f, 0.0f,0.0f)},
+        {QVector3D(0.0f, 0.0f, 1.0f), QVector3D(1.0f, 0.0f,0.0f)},
+        {QVector3D(1.0f, 0.0f, 1.0f), QVector3D(1.0f, 0.0f,0.0f)},
+        {QVector3D(0.0f, 1.0f, 1.0f), QVector3D(1.0f, 0.0f,0.0f)},
+        {QVector3D(1.0f, 1.0f, 1.0f), QVector3D(1.0f, 0.0f,0.0f)},
+    };
+
+    const int nbrVertices2 = 8;
+
+    //点从0开始
+    GLushort indices2[] = {
+        0,1,2,
+        1,2,3,
+        4,5,6,
+        5,6,7,
+        0,4,5,
+        0,4,6,
+        2,6,0,
+        2,6,3,
+        3,7,6,
+        3,7,1,
+        1,5,7,
+        1,5,0
+    };
+    const int nbrIndices2 = 36;
 //    int circlePointNumber = 360;
 //    //使用for循环构造出一个柱子的所有点  半径为1 高为1
 //    VertexData vertices2[2*circlePointNumber];
@@ -178,13 +206,10 @@ void GeometryEngine::initGeometry()
     // Transfer vertex data to VBO 0
     arrayBuf.bind();
     arrayBuf.allocate(vertices, nbrVertices * sizeof(VertexData));
-    // arrayBuf.allocate(vertices2, nbrVertices2 * sizeof(VertexData)); 写两个会覆盖掉前一个
-
 
     // Transfer index data to VBO 1
     indexBuf.bind();
     indexBuf.allocate(indices, nbrIndices * sizeof(GLushort));
-    //indexBuf.allocate(indices2, nbrIndices2 * sizeof(GLushort));
 //! [1]
 }
 
@@ -231,7 +256,9 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 proj
     //GL_TRIANGLE_FAN  1,2,3,4  -->  1 2 3, 1 3 4
 
 
-    initCylindrGeometry();  //生成圆柱
+    initCylindrGeometry();  //生成圆柱  //test 生成红色矩形
+    //arrayBuf.release();
+    program->setUniformValue("mvp", projection * matrixCylin);
     glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
     // czq  atribute GL_LINES can be changed to GL_TRIANGLES
 
