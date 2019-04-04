@@ -49,9 +49,12 @@
 ****************************************************************************/
 
 #include "geometryengine.h"
+#include "math.h"
 
 #include <QVector2D>
 #include <QVector3D>
+
+#define PI 3.14159265359
 
 struct VertexData
 {
@@ -116,10 +119,10 @@ GeometryEngine::~GeometryEngine()
 
 void GeometryEngine::initRedCubeGeometry()
 {
-
+    float x = PI;
     VertexData vertices2[] = {
         {QVector3D(0.0f, 0.0f, 2.0f), QVector3D(1.0f, 1.0f,1.0f)},
-        {QVector3D(1.0f, 0.0f, 2.0f), QVector3D(1.0f, 0.0f,0.0f)},
+        {QVector3D(x, 0.0f, 2.0f), QVector3D(1.0f, 0.0f,0.0f)},
         {QVector3D(0.0f, 1.0f, 2.0f), QVector3D(1.0f, 0.0f,0.0f)},
         {QVector3D(1.0f, 1.0f, 2.0f), QVector3D(1.0f, 1.0f,1.0f)},
         {QVector3D(0.0f, 0.0f, 3.0f), QVector3D(1.0f, 0.0f,0.0f)},
