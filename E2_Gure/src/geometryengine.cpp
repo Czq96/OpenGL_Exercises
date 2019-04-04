@@ -77,8 +77,6 @@ VertexData vertices[] = {
 
 const int nbrVertices = 8;
 
-
-
 GLushort indices[] = {
     0,1,2,
     1,2,3,
@@ -122,7 +120,7 @@ GeometryEngine::~GeometryEngine()
 void GeometryEngine::initRedCubeGeometry()
 {
     float x = PI;
-    int circlePointNumber = 4;
+    int circlePointNumber = 10;
     float theta = 2*PI/circlePointNumber;
     //使用for循环构造出一个柱子的所有点  半径为2 高为1
     VertexData *vertices2 =new VertexData[2*circlePointNumber];
@@ -137,22 +135,48 @@ void GeometryEngine::initRedCubeGeometry()
     }
     const int nbrVertices2 = circlePointNumber*2;
 
-    GLushort indices2[] = {
-        0,1,2,
-        0,2,3,
-        4,5,6,
-        4,6,7,
-        0,4,5,
-        0,4,3,
-        1,5,6,
-        5,1,0,
-        2,6,7,
-        2,6,1,
-        3,7,4,
-        3,7,2
-    };
-    const int nbrIndices2 = 36;
-////! [1]
+    //使用for循环构造面
+    //顶面360个点  358个底面   358*2 + 360*2 侧面  (circlePointNumber-2+circlePointNumber)*2
+    int faceNumber = (circlePointNumber-2+circlePointNumber)*2;
+    //int faceNumber = (circlePointNumber-2)*2;
+
+    GLushort *indices2= new GLushort[3*faceNumber];
+    int topFaceIndex = 0;
+    int bottomFaceIndex = 3*(circlePointNumber-2);
+    int sideFaceIndex = 3*2*(circlePointNumber-2);
+    for(int i=0;i<circlePointNumber-2;i++)
+    {
+        //底面 0~ 358*3-1
+        *(indices2+topFaceIndex)=0;
+        *(indices2+topFaceIndex+1)=i+1;
+        *(indices2+topFaceIndex+2)=i+2;
+        //顶面 358*3-1 ~ 358*3-1 + 358*3 => (circlePointNumber-2)*2*3
+        *(indices2+bottomFaceIndex)=circlePointNumber;
+        *(indices2+bottomFaceIndex+1)=circlePointNumber+i+1;
+        *(indices2+bottomFaceIndex+2)=circlePointNumber+i+2;
+
+        topFaceIndex+=3;
+        bottomFaceIndex+=3;
+    }
+
+    for(int i=0;i<circlePointNumber;i++)
+    {        //侧面
+        *(indices2+sideFaceIndex)=i;
+        *(indices2+sideFaceIndex+1)=i+circlePointNumber;
+        *(indices2+sideFaceIndex+2)=(i+1==circlePointNumber)?0:i+1;
+        *(indices2+sideFaceIndex+3)=i;
+        *(indices2+sideFaceIndex+4)=i+circlePointNumber;
+        *(indices2+sideFaceIndex+5)=(i+circlePointNumber-1<circlePointNumber)?2*circlePointNumber-1:i+circlePointNumber-1;
+        sideFaceIndex+=6;
+    }
+
+    int nbrIndices2 = 3*faceNumber;
+    //输出所有面的数组
+//    for(int i=0;i<nbrIndices2;i++)
+//    {
+//        QTextStream out(stdout);
+//        out<<"\n indices2+i: "<<*(indices2+i)<<"\n";
+//    }
     // Transfer vertex data to VBO 0
     arrayBuf.bind();
     arrayBuf.allocate(vertices2, nbrVertices2 * sizeof(VertexData));
