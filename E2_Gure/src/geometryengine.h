@@ -54,6 +54,8 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
+#include <QVector2D>
+#include <QVector3D>
 
 class GeometryEngine : protected QOpenGLFunctions
 {
@@ -64,10 +66,18 @@ public:
     void drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 projection,QQuaternion rotation);
 
 private:
+    struct VertexData
+    {
+        QVector3D position;
+        QVector3D color;
+    };
+
     void initGeometry();
+    void initCylindrGeometry();
 
     QOpenGLBuffer arrayBuf;
     QOpenGLBuffer indexBuf;
+
 };
 
 #endif // GEOMETRYENGINE_H

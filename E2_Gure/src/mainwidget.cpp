@@ -189,10 +189,10 @@ void MainWidget::paintGL() //czq  Matrice MVP tansformation appkiquée à tous l
     matrix.rotate(rotation);
 
     // Set modelview-projection matrix
-    // pour quoi appeles??
     program.setUniformValue("mvp", projection * matrix);
 //! [6]
 
     // Draw cube geometry   czq à faire   avant appels glDrawElements    program.setUniformValue("mvp", pojection *matrix);
     geometries->drawGeometry(&program, projection, rotation);
+
 }
