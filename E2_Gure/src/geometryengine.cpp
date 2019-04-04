@@ -50,12 +50,8 @@
 
 #include "geometryengine.h"
 
-#include "math.h"
-
 #include <QVector2D>
 #include <QVector3D>
-
-#define PI 3.14159265359
 
 struct VertexData
 {
@@ -76,7 +72,35 @@ VertexData vertices[] = {
 
 const int nbrVertices = 8;
 
-//点从0开始
+VertexData vertices2[] = {
+    {QVector3D(0.0f, 0.0f, 2.0f), QVector3D(1.0f, 1.0f,1.0f)},
+    {QVector3D(1.0f, 0.0f, 2.0f), QVector3D(1.0f, 0.0f,0.0f)},
+    {QVector3D(0.0f, 1.0f, 2.0f), QVector3D(1.0f, 0.0f,0.0f)},
+    {QVector3D(1.0f, 1.0f, 2.0f), QVector3D(1.0f, 1.0f,1.0f)},
+    {QVector3D(0.0f, 0.0f, 3.0f), QVector3D(1.0f, 0.0f,0.0f)},
+    {QVector3D(1.0f, 0.0f, 3.0f), QVector3D(1.0f, 0.0f,0.0f)},
+    {QVector3D(0.0f, 1.0f, 3.0f), QVector3D(1.0f, 0.0f,0.0f)},
+    {QVector3D(1.0f, 1.0f, 3.0f), QVector3D(1.0f, 1.0f,1.0f)},
+};
+const int nbrVertices2 = 8;
+
+GLushort indices2[] = {
+    0,1,2,
+    1,2,3,
+    4,5,6,
+    5,6,7,
+    0,4,5,
+    0,4,6,
+    2,6,0,
+    2,6,3,
+    3,7,6,
+    3,7,1,
+    1,5,7,
+    1,5,0
+};
+const int nbrIndices2 = 36;
+
+
 GLushort indices[] = {
     0,1,2,
     1,2,3,
@@ -95,7 +119,8 @@ GLushort indices[] = {
 const int nbrIndices = 36;
 
 //! [0]
-GeometryEngine::GeometryEngine(): indexBuf(QOpenGLBuffer::IndexBuffer)
+GeometryEngine::GeometryEngine()
+    : indexBuf(QOpenGLBuffer::IndexBuffer)
 {
     initializeOpenGLFunctions();
 
@@ -103,9 +128,12 @@ GeometryEngine::GeometryEngine(): indexBuf(QOpenGLBuffer::IndexBuffer)
     arrayBuf.create();
     indexBuf.create();
 
+    arrayBufCylindre.create();
+    indexBufCylindre.create();
+
     // Initializes cube geometry and transfers it to VBOs
-    initGeometry();
-    //initCylindrGeometry();
+    //initGeometry();
+    initRedCubeGeometry();
 }
 
 GeometryEngine::~GeometryEngine()
@@ -113,88 +141,19 @@ GeometryEngine::~GeometryEngine()
     arrayBuf.destroy();
     indexBuf.destroy();
 
+    arrayBufCylindre.destroy();
+    indexBufCylindre.destroy();
 }
 //! [0]
 
-void GeometryEngine::initCylindrGeometry()
+void GeometryEngine::initRedCubeGeometry()
 {
-    VertexData vertices2[] = {
-        {QVector3D(0.0f, 0.0f, 0.0f), QVector3D(1.0f, 0.0f,0.0f)},
-        {QVector3D(1.0f, 0.0f, 0.0f), QVector3D(1.0f, 0.0f,0.0f)},
-        {QVector3D(0.0f, 1.0f, 0.0f), QVector3D(1.0f, 0.0f,0.0f)},
-        {QVector3D(1.0f, 1.0f, 0.0f), QVector3D(1.0f, 0.0f,0.0f)},
-        {QVector3D(0.0f, 0.0f, 1.0f), QVector3D(1.0f, 0.0f,0.0f)},
-        {QVector3D(1.0f, 0.0f, 1.0f), QVector3D(1.0f, 0.0f,0.0f)},
-        {QVector3D(0.0f, 1.0f, 1.0f), QVector3D(1.0f, 0.0f,0.0f)},
-        {QVector3D(1.0f, 1.0f, 1.0f), QVector3D(1.0f, 0.0f,0.0f)},
-    };
-
-    const int nbrVertices2 = 8;
-
-    //点从0开始
-    GLushort indices2[] = {
-        0,1,2,
-        1,2,3,
-        4,5,6,
-        5,6,7,
-        0,4,5,
-        0,4,6,
-        2,6,0,
-        2,6,3,
-        3,7,6,
-        3,7,1,
-        1,5,7,
-        1,5,0
-    };
-    const int nbrIndices2 = 36;
-//    int circlePointNumber = 360;
-//    //使用for循环构造出一个柱子的所有点  半径为1 高为1
-//    VertexData vertices2[2*circlePointNumber];
-//    for(int i=0;i<circlePointNumber;i++)
-//    {
-//        float x=float(cos((i/(circlePointNumber/2))*PI));
-//        float y=float(sin((i/(circlePointNumber/2))*PI));
-//        vertices2[i] = VertexData({QVector3D(x, y, 0.0f), QVector3D(1.0f, 0.0f,0.0f)});
-//        vertices2[i+circlePointNumber] = VertexData({QVector3D(x, y, 1.0f), QVector3D(0.0f, 1.0f,0.0f)});
-//    }
-//    int nbrVertices2 = circlePointNumber*2;
-
-//    //使用for循环构造面 这里使用指针和动态数组会更好
-//    //顶面360个点  358个底面   358*2 + 360*2 侧面  (circlePointNumber-2+circlePointNumber)*2
-//    int faceNumber = (circlePointNumber-2+circlePointNumber)*2;
-//    //int faceNumber = (circlePointNumber-2)*2;
-
-//    GLushort indices2[3*faceNumber];
-//    int topFaceIndex = 0;
-//    int bottomFaceIndex = 3*(circlePointNumber-2);
-//    int sideFaceIndex = 3*2*(circlePointNumber-2);
-//    for(int i=0;i<circlePointNumber;i++)
-//    {
-//        //底面 0~ 358*3-1
-//        indices2[topFaceIndex]=0;
-//        indices2[topFaceIndex+1]=i+1;
-//        indices2[topFaceIndex+2]=i+2;
-//        //顶面 358*3-1 ~ 358*3-1 + 358*3 => (circlePointNumber-2)*2*3
-//        indices2[bottomFaceIndex]=circlePointNumber;
-//        indices2[bottomFaceIndex+1]=circlePointNumber+i+1;
-//        indices2[bottomFaceIndex+2]=circlePointNumber+i+2;
-//        //侧面
-//        indices2[sideFaceIndex]=i;
-//        indices2[sideFaceIndex+1]=i+circlePointNumber;
-//        indices2[sideFaceIndex+2]=i+circlePointNumber+1>=2*circlePointNumber?circlePointNumber:i+circlePointNumber+1;
-//        indices2[sideFaceIndex+3]=i;
-//        indices2[sideFaceIndex+4]=i+circlePointNumber;
-//        indices2[sideFaceIndex+5]=i-1<0?(circlePointNumber/2)-1:i-1;
-
-//        topFaceIndex+=3;
-//        bottomFaceIndex+=3;
-//        sideFaceIndex+=6;
-//    }
-//    int nbrIndices2 = 3*faceNumber;
-
+////! [1]
+    // Transfer vertex data to VBO 0
     arrayBuf.bind();
     arrayBuf.allocate(vertices2, nbrVertices2 * sizeof(VertexData));
 
+    // Transfer index data to VBO 1
     indexBuf.bind();
     indexBuf.allocate(indices2, nbrIndices2 * sizeof(GLushort));
 //! [1]
@@ -206,10 +165,13 @@ void GeometryEngine::initGeometry()
     // Transfer vertex data to VBO 0
     arrayBuf.bind();
     arrayBuf.allocate(vertices, nbrVertices * sizeof(VertexData));
+    // arrayBuf.allocate(vertices2, nbrVertices2 * sizeof(VertexData)); 写两个会覆盖掉前一个
+
 
     // Transfer index data to VBO 1
     indexBuf.bind();
     indexBuf.allocate(indices, nbrIndices * sizeof(GLushort));
+    //indexBuf.allocate(indices2, nbrIndices2 * sizeof(GLushort));
 //! [1]
 }
 
@@ -232,11 +194,58 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 proj
     matrixTorse.translate(-0.5/2,-(0.3/2.0),-0.2/2); // 这里移动的是物体坐标系
     matrixTorse.scale(0.5f,0.3f,0.2f); //改变大小 xyz三方向变动   scale 写在traslate前面有变化  关于 matrix.  的顺序
 
-    QMatrix4x4 matrixCylin;//变换的顺序从下至上
-    matrixCylin.translate(0.0,0.0,-5.0);
-    matrixCylin.rotate(rotation);  //鼠标事件的旋转
-    matrixCylin.translate(-0.5/2,-(0.3/2.0),-0.2/2); // 这里移动的是物体坐标系
-    matrixCylin.scale(0.2f,0.2f,0.2f); //改变大小 xyz三方向变动   scale 写在traslate前面有变化  关于 matrix.  的顺序
+    // Tell OpenGL programmable pipeline how to locate vertex position data
+    int vertexLocation = program->attributeLocation("position");
+    program->enableAttributeArray(vertexLocation);
+    program->setAttributeBuffer(vertexLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
+
+    // Offset for texture coordinate
+    offset += sizeof(QVector3D);
+
+    // Tell OpenGL programmable pipeline how to locate vertex texture coordinate data
+    int colorLocation = program->attributeLocation("color");
+    program->enableAttributeArray(colorLocation);
+    program->setAttributeBuffer(colorLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
+
+    /*
+    Model matrix (model to world)   物体自己的坐标系
+    View matrix (world to view) 视角坐标系？？
+    Projection matrix (view to projection space)   投影坐标
+    You would project a coordinate C onto the screen using the formula  C' = P * V * M * C
+    */
+    //program->setUniformValue("mvp", projection * matrixCentre);
+    // Draw cube geometry using indices from VBO 1
+    //glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
+    // czq  atribute GL_LINES can be changed to GL_TRIANGLES
+
+    program->setUniformValue("mvp", projection * matrixTorse);
+    glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
+    // czq  atribute GL_LINES can be changed to GL_TRIANGLES
+
+
+    //glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
+    // czq  atribute GL_LINES can be changed to GL_TRIANGLES
+
+}
+
+
+
+void GeometryEngine::drawCylindreGeometry(QOpenGLShaderProgram *program, QMatrix4x4 projection,QQuaternion rotation)
+{
+    initRedCubeGeometry();
+    arrayBuf.bind();
+    indexBuf.bind();
+
+
+    // Offset for position
+    quintptr offset = 0;
+
+    // x+方向是身高 高方向  y是-左 +右方向  z是+前 -后方向
+    QMatrix4x4 matrixTorse;//变换的顺序从下至上
+    matrixTorse.translate(0.0,0.0,-5.0);
+    matrixTorse.rotate(rotation);  //鼠标事件的旋转
+    matrixTorse.translate(-0.5/2,-(0.3/2.0),-0.2/2); // 这里移动的是物体坐标系
+    matrixTorse.scale(0.5f,0.3f,0.2f); //改变大小 xyz三方向变动   scale 写在traslate前面有变化  关于 matrix.  的顺序
 
     // Tell OpenGL programmable pipeline how to locate vertex position data
     int vertexLocation = program->attributeLocation("position");
@@ -251,14 +260,24 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 proj
     program->enableAttributeArray(colorLocation);
     program->setAttributeBuffer(colorLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
 
+    /*
+    Model matrix (model to world)   物体自己的坐标系
+    View matrix (world to view) 视角坐标系
+    Projection matrix (view to projection space)   投影坐标
+    You would project a coordinate C onto the screen using the formula  C' = P * V * M * C
+    对物体进行  旋转  移动之后 改变的是 物体自己的坐标系 MC
+     这样物体的坐标系 就不等于世界坐标系了  每次的操作都是对物体坐标系的操作
+    */
+
     program->setUniformValue("mvp", projection * matrixTorse);
     glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
-    //GL_TRIANGLE_FAN  1,2,3,4  -->  1 2 3, 1 3 4
+    // czq  atribute GL_LINES can be changed to GL_TRIANGLES
 
+    initGeometry();
+    arrayBuf.bind();
+    indexBuf.bind();
 
-    initCylindrGeometry();  //生成圆柱  //test 生成红色矩形
-    //arrayBuf.release();
-    program->setUniformValue("mvp", projection * matrixCylin);
+    program->setUniformValue("mvp", projection * matrixTorse);
     glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
     // czq  atribute GL_LINES can be changed to GL_TRIANGLES
 

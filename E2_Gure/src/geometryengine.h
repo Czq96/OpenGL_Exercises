@@ -65,6 +65,8 @@ public:
 
     void drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 projection,QQuaternion rotation);
 
+    void drawCylindreGeometry(QOpenGLShaderProgram *program, QMatrix4x4 projection,QQuaternion rotation);
+
 private:
     struct VertexData
     {
@@ -73,10 +75,15 @@ private:
     };
 
     void initGeometry();
-    void initCylindrGeometry();
+    void initRedCubeGeometry();
 
     QOpenGLBuffer arrayBuf;
     QOpenGLBuffer indexBuf;
+
+
+    QOpenGLBuffer arrayBufCylindre;
+    QOpenGLBuffer indexBufCylindre;
+
 
 };
 
