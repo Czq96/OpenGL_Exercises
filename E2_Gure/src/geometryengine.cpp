@@ -218,7 +218,25 @@ void GeometryEngine::initGeometry()
 //! drawCylindreGeometry
 void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 projection,QQuaternion rotation)
 {
-    //initRedCubeGeometry();
+
+    initCilindreGeometry(20);
+    arrayBuf.bind();
+    indexBuf.bind();
+
+    //对圆柱来说  z轴是高的方向  TODO: fix 方向的不统一 x/y/z
+    QMatrix4x4 matrixClindre;//变换的顺序从下至上
+    matrixClindre.translate(0.0,0.0,-5.0);
+    matrixClindre.rotate(rotation);
+    matrixClindre.translate(0.1,0.0,0); // 这里移动的是物体坐标系
+    matrixClindre.rotate(90,QVector3D(0,1,0));  //用于统一高的方向
+    matrixClindre.scale(0.1f,0.1f,0.8f);
+
+    program->setUniformValue("mvp", projection * matrixClindre);
+    glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0);    //initRedCubeGeometry();
+
+    arrayBuf.release();
+    indexBuf.release();
+
     initGeometry();
     arrayBuf.bind();
     indexBuf.bind();
@@ -231,28 +249,29 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 proj
     matrixTorse.translate(0.0,0.0,-5.0);
     matrixTorse.rotate(rotation);  //鼠标事件的旋转
     matrixTorse.translate(-0.5/2,-(0.3/2.0),-0.2/2); // 这里移动的是物体坐标系
-    matrixTorse.scale(0.5f,0.3f,0.2f); //改变大小 xyz三方向变动   scale 写在traslate前面有变化  关于 matrix.  的顺序
+    matrixTorse.scale(0.5f,0.3f,0.2f);
+    matrixTorse.rotate(90,QVector3D(0,1,0));
 
     // x+方向是身高 高方向  y是-左 +右方向  z是+前 -后方向
     QMatrix4x4 matrixPedestal;
-    matrixTorse.translate(0.0,0.0,-5.0);
-    matrixTorse.rotate(rotation);
-    matrixTorse.translate(-0.1,-(0.8/2.0),-0.2/2);
-    matrixTorse.scale(0.2f,0.8f,0.2f);
+    matrixPedestal.translate(0.0,0.0,-5.0);
+    matrixPedestal.rotate(rotation);
+    matrixPedestal.translate(-0.1,-(0.8/2.0),-0.2/2);
+    matrixPedestal.scale(0.2f,0.8f,0.2f);
 
     // x+方向是身高 高方向  y是-左 +右方向  z是+前 -后方向
     QMatrix4x4 matrixArm;
-    matrixTorse.translate(0.0,0.0,-5.0);
-    matrixTorse.rotate(rotation);
-    matrixTorse.translate(-0.2/2,-(1.0/2.0),-0.2/2);
-    matrixTorse.scale(0.2f,1.0f,0.2f);
+    matrixArm.translate(0.0,0.0,-5.0);
+    matrixArm.rotate(rotation);
+    matrixArm.translate(-0.2/2+1.0,-(1.4/2.0),-0.2/2);
+    matrixArm.scale(0.2f,1.6f,0.2f);
 
     // x+方向是身高 高方向  y是-左 +右方向  z是+前 -后方向
     QMatrix4x4 matrixHand;
-    matrixTorse.translate(0.0,0.0,-5.0);
-    matrixTorse.rotate(rotation);
-    matrixTorse.translate(-0.05,-(0.1/2.0),-0.1/2); // 这里移动的是物体坐标系
-    matrixTorse.scale(0.1f,0.1f,0.1f); //改变大小 xyz三方向变动   scale 写在traslate前面有变化  关于 matrix.  的顺序
+    matrixHand.translate(0.0,0.0,-5.0);
+    matrixHand.rotate(rotation);
+    matrixHand.translate(-0.1+1.0-0.2,-(0.2/2.0)-0.6,-0.1); // 这里移动的是物体坐标系
+    matrixHand.scale(0.2f,0.2f,0.2f); //改变大小 xyz三方向变动   scale 写在traslate前面有变化  关于 matrix.  的顺序
 
     // Tell OpenGL programmable pipeline how to locate vertex position data
     int vertexLocation = program->attributeLocation("position");
@@ -268,31 +287,20 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 proj
     program->setAttributeBuffer(colorLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
 
     //底座 + 吊臂 + 头matrixTorse
-    program->setUniformValue("mvp", projection * matrixPedestal);
-    glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
+    //program->setUniformValue("mvp", projection * matrixTorse);
+    //glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0);
 
     program->setUniformValue("mvp", projection * matrixPedestal);
-    glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0);
 
     program->setUniformValue("mvp", projection * matrixArm);
-    glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0);
 
     program->setUniformValue("mvp", projection * matrixHand);
-    glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0);
 
 //    arrayBuf.release();
 //    indexBuf.release();
 
-    initCilindreGeometry(20);
-
-    QMatrix4x4 matrixClindre;//变换的顺序从下至上
-    matrixClindre.translate(1.0,-1.0,-5.0);
-    matrixClindre.rotate(rotation);  //鼠标事件的旋转
-    matrixClindre.translate(-0.5/2,-(0.3/2.0),-0.2/2); // 这里移动的是物体坐标系
-    matrixClindre.scale(0.2f,0.2f,0.2f); //改变大小 xyz三方向变动   scale 写在traslate前面有变化  关于 matrix.  的顺序
-
-    program->setUniformValue("mvp", projection * matrixClindre);
-    glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0);
-    // czq  atribute GL_LINES can be changed to GL_TRIANGLES
 }
 
