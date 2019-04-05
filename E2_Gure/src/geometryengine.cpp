@@ -106,7 +106,6 @@ GeometryEngine::GeometryEngine()
 
     // Initializes cube geometry and transfers it to VBOs
     initGeometry();
-    //initRedCubeGeometry();
 }
 
 GeometryEngine::~GeometryEngine()
@@ -117,23 +116,26 @@ GeometryEngine::~GeometryEngine()
 }
 //! [0]
 
-void GeometryEngine::initRedCubeGeometry()
+void GeometryEngine::initCilindreGeometry(int circlePrecision)
 {
     float x = PI;
-    int circlePointNumber = 10;
+    int circlePointNumber = circlePrecision;
     float theta = 2*PI/circlePointNumber;
-    //使用for循环构造出一个柱子的所有点  半径为2 高为1
+    //使用for循环构造出一个柱子的所有点  半径为1 高为1
     VertexData *vertices2 =new VertexData[2*circlePointNumber];
     for(int i=0;i<circlePointNumber;i++)
     {
-        float x=float(2*cos(theta*i));
-        float y=float(2*sin(theta*i));
+        float x=float(cos(theta*i));
+        float y=float(sin(theta*i));
 //        QTextStream out(stdout);
 //        out << "x:"<<x<<" y: "<<y<<" i"<<i<<"\n";
         *(vertices2+i) = VertexData({QVector3D(x, y, 0.0f), QVector3D(1.0f, 0.0f,0.0f)});
         *(vertices2+i+circlePointNumber) = VertexData({QVector3D(x, y, 1.0f), QVector3D(0.0f, 1.0f,0.0f)});
     }
     const int nbrVertices2 = circlePointNumber*2;
+
+    QTextStream out(stdout);
+    out << "total vertices number "<<nbrVertices2<<" test: "<<sizeof(*vertices2) <<" test2: "<< _msize(vertices2)/sizeof(VertexData)<<"\n";
 
     //使用for循环构造面
     //顶面360个点  358个底面   358*2 + 360*2 侧面  (circlePointNumber-2+circlePointNumber)*2
@@ -171,12 +173,17 @@ void GeometryEngine::initRedCubeGeometry()
     }
 
     int nbrIndices2 = 3*faceNumber;
-    //输出所有面的数组
+//    //输出所有面的数组
 //    for(int i=0;i<nbrIndices2;i++)
 //    {
 //        QTextStream out(stdout);
 //        out<<"\n indices2+i: "<<*(indices2+i)<<"\n";
 //    }
+
+//    QTextStream outface(stdout);
+//    outface << "total face number "<<nbrIndices2<<" test: "<<_msize(indices2)/sizeof(GLushort)<<"\n";
+//    outface << "cos:   pi/4:  "  <<cos(PI/4) <<"  pi/2:"  <<cos(PI/2) <<"  3pi/4 :"  <<cos(3*PI/4);
+
     // Transfer vertex data to VBO 0
     arrayBuf.bind();
     arrayBuf.allocate(vertices2, nbrVertices2 * sizeof(VertexData));
@@ -246,9 +253,7 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 proj
 //    arrayBuf.release();
 //    indexBuf.release();
 
-    initRedCubeGeometry();
-    arrayBuf.bind();
-    indexBuf.bind();
+    initCilindreGeometry(20);
 
     QMatrix4x4 matrixClindre;//变换的顺序从下至上
     matrixClindre.translate(1.0,-1.0,-5.0);
@@ -257,7 +262,7 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 proj
     matrixClindre.scale(0.2f,0.2f,0.2f); //改变大小 xyz三方向变动   scale 写在traslate前面有变化  关于 matrix.  的顺序
 
     program->setUniformValue("mvp", projection * matrixClindre);
-    glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0);
     // czq  atribute GL_LINES can be changed to GL_TRIANGLES
 }
 

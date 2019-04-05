@@ -73,7 +73,7 @@ private:
     };
 
     void initGeometry();
-    void initRedCubeGeometry();
+    void initCilindreGeometry(int circlePrecision);
 
     QOpenGLBuffer arrayBuf;
     QOpenGLBuffer indexBuf;
