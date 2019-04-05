@@ -233,6 +233,27 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 proj
     matrixTorse.translate(-0.5/2,-(0.3/2.0),-0.2/2); // 这里移动的是物体坐标系
     matrixTorse.scale(0.5f,0.3f,0.2f); //改变大小 xyz三方向变动   scale 写在traslate前面有变化  关于 matrix.  的顺序
 
+    // x+方向是身高 高方向  y是-左 +右方向  z是+前 -后方向
+    QMatrix4x4 matrixPedestal;
+    matrixTorse.translate(0.0,0.0,-5.0);
+    matrixTorse.rotate(rotation);
+    matrixTorse.translate(-0.1,-(0.8/2.0),-0.2/2);
+    matrixTorse.scale(0.2f,0.8f,0.2f);
+
+    // x+方向是身高 高方向  y是-左 +右方向  z是+前 -后方向
+    QMatrix4x4 matrixArm;
+    matrixTorse.translate(0.0,0.0,-5.0);
+    matrixTorse.rotate(rotation);
+    matrixTorse.translate(-0.2/2,-(1.0/2.0),-0.2/2);
+    matrixTorse.scale(0.2f,1.0f,0.2f);
+
+    // x+方向是身高 高方向  y是-左 +右方向  z是+前 -后方向
+    QMatrix4x4 matrixHand;
+    matrixTorse.translate(0.0,0.0,-5.0);
+    matrixTorse.rotate(rotation);
+    matrixTorse.translate(-0.05,-(0.1/2.0),-0.1/2); // 这里移动的是物体坐标系
+    matrixTorse.scale(0.1f,0.1f,0.1f); //改变大小 xyz三方向变动   scale 写在traslate前面有变化  关于 matrix.  的顺序
+
     // Tell OpenGL programmable pipeline how to locate vertex position data
     int vertexLocation = program->attributeLocation("position");
     program->enableAttributeArray(vertexLocation);
@@ -246,9 +267,18 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 proj
     program->enableAttributeArray(colorLocation);
     program->setAttributeBuffer(colorLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
 
-    program->setUniformValue("mvp", projection * matrixTorse);
+    //底座 + 吊臂 + 头matrixTorse
+    program->setUniformValue("mvp", projection * matrixPedestal);
     glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
-    // czq  atribute GL_LINES can be changed to GL_TRIANGLES
+
+    program->setUniformValue("mvp", projection * matrixPedestal);
+    glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
+
+    program->setUniformValue("mvp", projection * matrixArm);
+    glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
+
+    program->setUniformValue("mvp", projection * matrixHand);
+    glDrawElements(GL_TRIANGLES,nbrIndices, GL_UNSIGNED_SHORT, 0);
 
 //    arrayBuf.release();
 //    indexBuf.release();
