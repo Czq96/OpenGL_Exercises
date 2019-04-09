@@ -61,7 +61,7 @@ public:
     GeometryEngine();
     virtual ~GeometryEngine();
 
-    void drawGeometry(QOpenGLShaderProgram *program);
+    void drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 VP);
 
 private:
     void initGeometry();

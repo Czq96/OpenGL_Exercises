@@ -59,25 +59,58 @@ struct VertexData
     QVector3D color;
 };
 
-
+//上下底 + 侧面
 VertexData vertices[] = {
+    //下底
     {QVector3D(0.0f, 0.0f, 0.0f), QVector3D(1.0f, 0.0f,0.0f)},
     {QVector3D(1.0f, 0.0f, 0.0f), QVector3D(1.0f, 0.0f,0.0f)},
+    {QVector3D(1.0f, 1.0f, 0.0f), QVector3D(1.0f, 0.0f,0.0f)},
+    {QVector3D(0.0f, 1.0f, 0.0f), QVector3D(1.0f, 0.0f,0.0f)},
+    //上底
+    {QVector3D(0.0f, 0.0f, 1.0f), QVector3D(0.0f, 1.0f,1.0f)},
+    {QVector3D(1.0f, 0.0f, 1.0f), QVector3D(0.0f, 1.0f,1.0f)},
+    {QVector3D(1.0f, 1.0f, 1.0f), QVector3D(0.0f, 1.0f,1.0f)},
+    {QVector3D(0.0f, 1.0f, 1.0f), QVector3D(0.0f, 1.0f,1.0f)},
+    //侧面1
     {QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f,0.0f)},
-    {QVector3D(0.0f, 1.0f, 0.0f), QVector3D(0.0f, 1.0f,0.0f)},
-    {QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 0.0f,1.0f)},
-    {QVector3D(0.0f, 0.0f, 1.0f), QVector3D(0.0f, 0.0f,1.0f)},
+    {QVector3D(1.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f,0.0f)},
+    {QVector3D(1.0f, 0.0f, 1.0f), QVector3D(0.0f, 1.0f,0.0f)},
+    {QVector3D(0.0f, 0.0f, 1.0f), QVector3D(0.0f, 1.0f,0.0f)},
+    //侧面2
+    {QVector3D(1.0f, 0.0f, 0.0f), QVector3D(0.0f, 0.0f,1.0f)},
+    {QVector3D(1.0f, 1.0f, 0.0f), QVector3D(0.0f, 0.0f,1.0f)},
+    {QVector3D(1.0f, 1.0f, 1.0f), QVector3D(0.0f, 0.0f,1.0f)},
+    {QVector3D(1.0f, 0.0f, 1.0f), QVector3D(0.0f, 0.0f,1.0f)},
+    //侧面3
+    {QVector3D(1.0f, 1.0f, 0.0f), QVector3D(1.0f, 0.0f,1.0f)},
+    {QVector3D(0.0f, 1.0f, 0.0f), QVector3D(1.0f, 0.0f,1.0f)},
+    {QVector3D(0.0f, 1.0f, 1.0f), QVector3D(1.0f, 0.0f,1.0f)},
+    {QVector3D(1.0f, 1.0f, 1.0f), QVector3D(1.0f, 0.0f,1.0f)},
+    //侧面4
+    {QVector3D(0.0f, 1.0f, 0.0f), QVector3D(1.0f, 1.0f,0.0f)},
+    {QVector3D(0.0f, 0.0f, 0.0f), QVector3D(1.0f, 1.0f,0.0f)},
+    {QVector3D(0.0f, 0.0f, 1.0f), QVector3D(1.0f, 1.0f,0.0f)},
+    {QVector3D(0.0f, 1.0f, 1.0f), QVector3D(1.0f, 1.0f,0.0f)},
 };
 
-const int nbrVertices = 6;
+const int nbrVertices = 24;
 
 GLushort indices[] = {
-    0,1,
-    2,3,
-    4,5
+    2,1,0,
+    3,2,0, // 这里不是 0， 1 ， 2 / 0 2 3 是因为用这两个的话颜色会显示在正方体内部
+    4,5,6,
+    4,6,7,
+    8,9,10,
+    8,10,11,
+    12,13,14,
+    12,14,15,
+    16,17,18,
+    16,18,19,
+    20,21,22,
+    20,22,23
 };
 
-const int nbrIndices = 6;
+const int nbrIndices = 36;
 
 
 //! [0]
@@ -115,15 +148,41 @@ void GeometryEngine::initGeometry()
 }
 
 //! [2]
-void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program)
+void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 VP)
 {
     // Tell OpenGL which VBOs to use
     arrayBuf.bind();
     indexBuf.bind();
 
-
     // Offset for position
     quintptr offset = 0;
+
+    /* (xy) 00 01
+     *      10 11
+     */
+    QMatrix4x4 matrixBottom00;
+    matrixBottom00.translate(0,0,0);
+
+    QMatrix4x4 matrixBottom01;
+    matrixBottom01.translate(0,1.05,0);
+
+    QMatrix4x4 matrixBottom10;
+    matrixBottom10.translate(1.05,0,0);
+
+    QMatrix4x4 matrixBottom11;
+    matrixBottom11.translate(1.05,1.05,0);
+
+    QMatrix4x4 matrixTop00;
+    matrixTop00.translate(0,0,1.05);
+
+    QMatrix4x4 matrixTop01;
+    matrixTop01.translate(0,1.05,1.05);
+
+    QMatrix4x4 matrixTop10;
+    matrixTop10.translate(1.05,0,1.05);
+
+    QMatrix4x4 matrixTop11;
+    matrixTop11.translate(1.05,1.05,1.05);
 
     // Tell OpenGL programmable pipeline how to locate vertex position data
     int vertexLocation = program->attributeLocation("position");
@@ -138,7 +197,26 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program)
     program->enableAttributeArray(colorLocation);
     program->setAttributeBuffer(colorLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
 
-    // Draw cube geometry using indices from VBO 1
-    glDrawElements(GL_LINES, 6, GL_UNSIGNED_SHORT, 0);
+    // Draw basic cube geometry using indices from VBO 1
+    //glDrawElements(GL_TRIANGLES, arrayBuf.size(), GL_UNSIGNED_SHORT, 0);
+
+    program->setUniformValue("mvp", VP * matrixBottom00);
+    glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); // 第三四个参数意义不明
+    program->setUniformValue("mvp", VP * matrixBottom01);
+    glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); //
+    program->setUniformValue("mvp", VP * matrixBottom10);
+    glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); //
+    program->setUniformValue("mvp", VP * matrixBottom11);
+    glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); //
+
+    program->setUniformValue("mvp", VP * matrixTop00);
+    glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); // 第三四个参数意义不明
+    program->setUniformValue("mvp", VP * matrixTop01);
+    glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); //
+    program->setUniformValue("mvp", VP * matrixTop10);
+    glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); //
+    program->setUniformValue("mvp", VP * matrixTop11);
+    glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); //
+
 }
 //! [2]
