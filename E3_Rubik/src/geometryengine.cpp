@@ -239,7 +239,7 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 VP, 
             matrix3[i][j] = new QMatrix4x4[3];
         }
     }
-
+    //生成所有移动矩阵
     for(int z = 0; z<3;z++)
     {
         for(int y = 0; y <3; y++)
@@ -247,11 +247,13 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 VP, 
             for(int x=0; x<3; x++)
             {
                 matrix3[z][y][x] = QMatrix4x4();
-                matrix3[z][y][x].translate(x-1,y-1,z-1);
+                //matrix3[z][y][x].translate(x-1,y-1,z-1);
                 if(z==0)
-                {
+                {//只动顶面
                     matrix3[z][y][x].rotate(rotationAuto);
                 }
+                //减0.5是为了将坐标轴中心移动到魔方体心   *1.10 是为了留出空隙
+                matrix3[z][y][x].translate((x-1)*1.10-0.5,(y-1)*1.10-0.5,(z-1)*1.10-0.5);
                 program->setUniformValue("mvp", VP * matrix3[z][y][x]);
                 glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); //
             }

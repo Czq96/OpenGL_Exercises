@@ -103,6 +103,7 @@ void MainWidget::timerEvent(QTimerEvent *)
     // Decrease angular speed (friction)
     angularSpeed *= 0.98;
 
+    //随着时间而改变的旋转
     rotationAutoAxe=QVector3D(0.0,0.0,1.0);
     autoAngular += 3;
     rotationAuto = QQuaternion::fromAxisAndAngle(rotationAutoAxe,autoAngular);
@@ -113,12 +114,9 @@ void MainWidget::timerEvent(QTimerEvent *)
     } else {
         // Update rotation
         rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;
-
         // Request an update
         update();
     }
-
-
     update();
 }
 //! [1]
