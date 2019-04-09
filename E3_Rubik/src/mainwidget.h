@@ -85,8 +85,9 @@ protected:
     void initTextures();
 
 private:
-    QBasicTimer timer; //时间？
+    QBasicTimer timer;
     QOpenGLShaderProgram program;
+    //QOpenGLShaderProgram programLeft;
     GeometryEngine *geometries;
 
     QMatrix4x4 projection;

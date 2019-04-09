@@ -105,7 +105,7 @@ void MainWidget::timerEvent(QTimerEvent *)
 
     //随着时间而改变的旋转
     rotationAutoAxe=QVector3D(0.0,0.0,1.0);
-    autoAngular += 3;
+    autoAngular += 0.5;
     rotationAuto = QQuaternion::fromAxisAndAngle(rotationAutoAxe,autoAngular);
 
     // Stop rotation when speed goes below threshold
@@ -195,9 +195,15 @@ void MainWidget::paintGL()
 
     // Set modelview-projection matrix
     program.setUniformValue("mvp", projection * matrix);
+
+    //programLeft.setUniformValue("mvp", projection * matrix);
 //! [6]
 //!
 
     // Draw cube geometry
     geometries->drawGeometry(&program, projection * matrix, rotationAuto);
+    glViewport(0,0,1000,1000);  //
+
+    geometries->drawGeometry(&program, projection * matrix, rotationAuto);
+    glViewport(0,1000,1000,1000);
 }
