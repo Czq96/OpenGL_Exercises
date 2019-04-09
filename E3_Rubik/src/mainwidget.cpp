@@ -57,7 +57,7 @@
 MainWidget::MainWidget(QWidget *parent) :
     QOpenGLWidget(parent),
     geometries(0),
-    angularSpeed(0)
+    angularSpeed(5)
 {
 }
 
@@ -101,7 +101,11 @@ void MainWidget::mouseReleaseEvent(QMouseEvent *e)
 void MainWidget::timerEvent(QTimerEvent *)
 {
     // Decrease angular speed (friction)
-    angularSpeed *= 0.99;
+    angularSpeed *= 0.98;
+
+    rotationAutoAxe=QVector3D(0.0,0.0,1.0);
+    autoAngular += 3;
+    rotationAuto = QQuaternion::fromAxisAndAngle(rotationAutoAxe,autoAngular);
 
     // Stop rotation when speed goes below threshold
     if (angularSpeed < 0.01) {
@@ -113,6 +117,9 @@ void MainWidget::timerEvent(QTimerEvent *)
         // Request an update
         update();
     }
+
+
+    update();
 }
 //! [1]
 
@@ -167,7 +174,7 @@ void MainWidget::resizeGL(int w, int h)
     qreal aspect = qreal(w) / qreal(h ? h : 1);
 
     // Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
-    const qreal zNear = 1.0, zFar = 9.0, fov = 120.0;
+    const qreal zNear = 1.0, zFar = 9.0, fov = 100.0;
 
     // Reset projection
     projection.setToIdentity();
@@ -191,7 +198,8 @@ void MainWidget::paintGL()
     // Set modelview-projection matrix
     program.setUniformValue("mvp", projection * matrix);
 //! [6]
+//!
 
     // Draw cube geometry
-    geometries->drawGeometry(&program, projection * matrix);
+    geometries->drawGeometry(&program, projection * matrix, rotationAuto);
 }

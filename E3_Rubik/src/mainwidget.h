@@ -85,7 +85,7 @@ protected:
     void initTextures();
 
 private:
-    QBasicTimer timer;
+    QBasicTimer timer; //时间？
     QOpenGLShaderProgram program;
     GeometryEngine *geometries;
 
@@ -95,6 +95,10 @@ private:
     QVector3D rotationAxis;
     qreal angularSpeed;
     QQuaternion rotation;
+
+    QVector3D rotationAutoAxe;
+    QQuaternion rotationAuto;
+    qreal autoAngular;
 };
 
 #endif // MAINWIDGET_H

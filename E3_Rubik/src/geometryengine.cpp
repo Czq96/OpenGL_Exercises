@@ -148,7 +148,7 @@ void GeometryEngine::initGeometry()
 }
 
 //! [2]
-void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 VP)
+void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 VP, QQuaternion rotationAuto)
 {
     // Tell OpenGL which VBOs to use
     arrayBuf.bind();
@@ -157,32 +157,39 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 VP)
     // Offset for position
     quintptr offset = 0;
 
-    /* (xy) 00 01
-     *      10 11
+    //
+
+    /* (xy) 00 0-1
+     *      -10 -1-1
      */
     QMatrix4x4 matrixBottom00;
     matrixBottom00.translate(0,0,0);
+    matrixBottom00.translate(0,0,0);
 
     QMatrix4x4 matrixBottom01;
-    matrixBottom01.translate(0,1.05,0);
+    matrixBottom01.translate(0,-1.10,0);
 
     QMatrix4x4 matrixBottom10;
-    matrixBottom10.translate(1.05,0,0);
+    matrixBottom10.translate(-1.10,0,0);
 
     QMatrix4x4 matrixBottom11;
-    matrixBottom11.translate(1.05,1.05,0);
+    matrixBottom11.translate(-1.10,-1.10,0);
 
     QMatrix4x4 matrixTop00;
-    matrixTop00.translate(0,0,1.05);
+    matrixTop00.rotate(rotationAuto);
+    matrixTop00.translate(0,0,1.10);
 
     QMatrix4x4 matrixTop01;
-    matrixTop01.translate(0,1.05,1.05);
+    matrixTop01.rotate(rotationAuto);
+    matrixTop01.translate(0,-1.10,1.10);
 
     QMatrix4x4 matrixTop10;
-    matrixTop10.translate(1.05,0,1.05);
+    matrixTop10.rotate(rotationAuto);
+    matrixTop10.translate(-1.10,0,1.10);
 
     QMatrix4x4 matrixTop11;
-    matrixTop11.translate(1.05,1.05,1.05);
+    matrixTop11.rotate(rotationAuto);
+    matrixTop11.translate(-1.10,-1.10,1.10);
 
     // Tell OpenGL programmable pipeline how to locate vertex position data
     int vertexLocation = program->attributeLocation("position");
