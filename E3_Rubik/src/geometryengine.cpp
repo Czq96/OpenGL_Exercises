@@ -49,6 +49,8 @@
 ****************************************************************************/
 
 #include "geometryengine.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <QVector2D>
 #include <QVector3D>
@@ -161,7 +163,7 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 VP, 
 
     /* (xy) 00 0-1
      *      -10 -1-1
-     */
+     *//*
     QMatrix4x4 matrixBottom00;
     matrixBottom00.translate(0,0,0);
     matrixBottom00.translate(0,0,0);
@@ -190,7 +192,7 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 VP, 
     QMatrix4x4 matrixTop11;
     matrixTop11.rotate(rotationAuto);
     matrixTop11.translate(-1.10,-1.10,1.10);
-
+*/
     // Tell OpenGL programmable pipeline how to locate vertex position data
     int vertexLocation = program->attributeLocation("position");
     program->enableAttributeArray(vertexLocation);
@@ -206,7 +208,7 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 VP, 
 
     // Draw basic cube geometry using indices from VBO 1
     //glDrawElements(GL_TRIANGLES, arrayBuf.size(), GL_UNSIGNED_SHORT, 0);
-
+/*
     program->setUniformValue("mvp", VP * matrixBottom00);
     glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); // 第三四个参数意义不明
     program->setUniformValue("mvp", VP * matrixBottom01);
@@ -217,13 +219,43 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 VP, 
     glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); //
 
     program->setUniformValue("mvp", VP * matrixTop00);
-    glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); // 第三四个参数意义不明
+    glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); //
     program->setUniformValue("mvp", VP * matrixTop01);
     glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); //
     program->setUniformValue("mvp", VP * matrixTop10);
     glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); //
     program->setUniformValue("mvp", VP * matrixTop11);
     glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); //
+*/
 
+    //构造三重指针
+    QMatrix4x4 ***matrix3;
+    matrix3 = new QMatrix4x4**[3];
+    for (int i = 0; i < 3; ++i)
+    {
+        matrix3[i] = new QMatrix4x4*[3];
+        for (int j = 0; j < 3; ++j)
+        {
+            matrix3[i][j] = new QMatrix4x4[3];
+        }
+    }
+
+    for(int z = 0; z<3;z++)
+    {
+        for(int y = 0; y <3; y++)
+        {
+            for(int x=0; x<3; x++)
+            {
+                matrix3[z][y][x] = QMatrix4x4();
+                matrix3[z][y][x].translate(x-1,y-1,z-1);
+                if(z==0)
+                {
+                    matrix3[z][y][x].rotate(rotationAuto);
+                }
+                program->setUniformValue("mvp", VP * matrix3[z][y][x]);
+                glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); //
+            }
+        }
+    }
 }
 //! [2]
