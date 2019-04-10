@@ -62,6 +62,7 @@ public:
     virtual ~GeometryEngine();
 
     void drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 VP, QQuaternion rotationAuto);
+    void drawGeometry333(QOpenGLShaderProgram *program, QMatrix4x4 VP, QQuaternion rotationAuto);
 
 private:
     void initGeometry();

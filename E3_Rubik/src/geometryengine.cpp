@@ -163,7 +163,7 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 VP, 
 
     /* (xy) 00 0-1
      *      -10 -1-1
-     *//*
+     */
     QMatrix4x4 matrixBottom00;
     matrixBottom00.translate(0,0,0);
     matrixBottom00.translate(0,0,0);
@@ -192,7 +192,7 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 VP, 
     QMatrix4x4 matrixTop11;
     matrixTop11.rotate(rotationAuto);
     matrixTop11.translate(-1.10,-1.10,1.10);
-*/
+
     // Tell OpenGL programmable pipeline how to locate vertex position data
     int vertexLocation = program->attributeLocation("position");
     program->enableAttributeArray(vertexLocation);
@@ -208,7 +208,7 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 VP, 
 
     // Draw basic cube geometry using indices from VBO 1
     //glDrawElements(GL_TRIANGLES, arrayBuf.size(), GL_UNSIGNED_SHORT, 0);
-/*
+
     program->setUniformValue("mvp", VP * matrixBottom00);
     glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); // 第三四个参数意义不明
     program->setUniformValue("mvp", VP * matrixBottom01);
@@ -226,7 +226,31 @@ void GeometryEngine::drawGeometry(QOpenGLShaderProgram *program, QMatrix4x4 VP, 
     glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); //
     program->setUniformValue("mvp", VP * matrixTop11);
     glDrawElements(GL_TRIANGLES,arrayBuf.size(), GL_UNSIGNED_SHORT, 0); //
-*/
+
+}
+
+
+void GeometryEngine::drawGeometry333(QOpenGLShaderProgram *program, QMatrix4x4 VP, QQuaternion rotationAuto)
+{
+    // Tell OpenGL which VBOs to use
+    arrayBuf.bind();
+    indexBuf.bind();
+
+    // Offset for position
+    quintptr offset = 0;
+
+    // Tell OpenGL programmable pipeline how to locate vertex position data
+    int vertexLocation = program->attributeLocation("position");
+    program->enableAttributeArray(vertexLocation);
+    program->setAttributeBuffer(vertexLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
+
+    // Offset for texture coordinate
+    offset += sizeof(QVector3D);
+
+    // Tell OpenGL programmable pipeline how to locate vertex texture coordinate data
+    int colorLocation = program->attributeLocation("color");
+    program->enableAttributeArray(colorLocation);
+    program->setAttributeBuffer(colorLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
 
     //构造三重指针
     QMatrix4x4 ***matrix3;

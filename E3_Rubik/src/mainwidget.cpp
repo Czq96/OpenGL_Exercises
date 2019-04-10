@@ -202,8 +202,9 @@ void MainWidget::paintGL()
 
     // Draw cube geometry
     geometries->drawGeometry(&program, projection * matrix, rotationAuto);
-    glViewport(0,0,1000,1000);  //
+    glViewport(0,0,(this->width())/2,this->height());  //
 
-    geometries->drawGeometry(&program, projection * matrix, rotationAuto);
-    glViewport(0,1000,1000,1000);
+    geometries->drawGeometry333(&program, projection * matrix, rotationAuto);
+    glViewport(0,(this->width())/2,this->width(),this->height());
+    //这种写法的viewport 是叠加的  一个叠加在另一个上面
 }
