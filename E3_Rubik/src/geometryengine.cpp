@@ -272,7 +272,7 @@ void GeometryEngine::drawGeometry333(QOpenGLShaderProgram *program, QMatrix4x4 V
             {
                 matrix3[z][y][x] = QMatrix4x4();
                 //matrix3[z][y][x].translate(x-1,y-1,z-1);
-                if(z==0)
+                if(z==2)
                 {//只动顶面
                     matrix3[z][y][x].rotate(rotationAuto);
                 }
